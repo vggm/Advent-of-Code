@@ -27,9 +27,9 @@ def slide_rocks(board: tuple[str]) -> tuple[str]:
   
   for row in tboard:
     new_rows = []
-    for group in row.split('#'):
+    for group in row.split(WALL):
       new_rows.append(''.join(sorted(group, reverse=True)))
-    new_board.append('#'.join(new_rows))
+    new_board.append(WALL.join(new_rows))
     
   return tuple(map(''.join, zip(*new_board)))
 
