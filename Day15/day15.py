@@ -1,4 +1,4 @@
-
+import re
 
 def get_strings(filename: str) -> list[str]:
   return open(filename).read().strip().split(',')
@@ -22,15 +22,15 @@ def part_one(strings: list[str]) -> int:
 def part_two(strings: list[str]) -> int:
   boxes = [{} for _ in range(256)]
   for s in strings:
-    if '=' in s: # add/update
-      label, number = s.split('=')
-      box = hash(label)
-      boxes[box][label] = int(number)
-    else: # remove
-      label = s[:-1]
-      box = hash(label)
-      if boxes[box].get(label) is not None:
+    label, other = re.split('[-=]', s)
+    box = hash(label)
+    
+    if '=' in s:
+      boxes[box][label] = int(other)
+    else:
+      if boxes[box].get(label, False):
         boxes[box].pop(label)
+        
   
   return sum((i+1) * slot * focal 
              for i, box in enumerate(boxes) 
