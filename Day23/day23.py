@@ -1,49 +1,75 @@
 
-import sys
+grid = open('./input.txt').read().splitlines()
 
-POSSIBLE_MOVES = ((-1, 0), (1, 0), (0, -1), (0, 1))
+start = (0, 1)
+end = (len(grid)-1, len(grid[0])-2)
 
-def get_map(filename: str) -> list[str]:
-  return open(filename).read().strip().split('\n')
+points = {start, end}
 
-
-def part_one(M: list[str]) -> int:
-  init_pos = (0, 1)
-  end_pos = (len(M)-1, len(M[0])-2)
-  max_path = [[0 for _ in range(len(M[0]))] for _ in range(len(M))]
-  
-  def bt(step: int, curr: tuple[int, int], curr_path: set[tuple[int, int]]) -> None:
+for i, row in enumerate(grid):
+  for j, v in enumerate(row):
+    if v == '#':
+      continue
     
-    if curr == end_pos:
-      return
+    neighbors = 0
+    for ni, nj in [(i-1, j), (i+1, j), (i, j-1), (i, j+1)]:
+      if 0 <= ni < len(grid) and 0 <= nj < len(grid[0]) and grid[ni][nj] != '#':
+        neighbors += 1
+      
+    if neighbors >= 3:
+      points.add((i, j))
+
+graph = {}
+def clear_graph():
+  global graph
+  graph = {pt: {} for pt in points}
+clear_graph()
+
+dirs = {
+  '^': [(-1, 0)],
+  'v': [(1, 0)],
+  '<': [(0, -1)],
+  '>': [(0, 1)],
+  '.': [(1, 0), (-1, 0), (0, 1), (0, -1)]
+}
+
+def make_graph(part: int):
+  for si, sj in points:
+    stack = [(0, si, sj)]
+    seen = {(si, sj)}
     
-    i, j = curr
-    for y, x in POSSIBLE_MOVES:
-      ni, nj = i+y, j+x
-      if 0 <= ni < len(M) and 0 <= nj < len(M[0]):
-        if M[ni][nj] != '#'\
-        and (ni, nj) not in curr_path\
-        and ( M[ni][nj] == '.'
-          or (M[ni][nj] == '>' and x != -1)
-          or (M[ni][nj] == '<' and x != 1)
-          or (M[ni][nj] == 'v' and y != -1)
-          or (M[ni][nj] == '^' and y != 1))\
-        and step+1 > max_path[ni][nj]:
-          max_path[ni][nj] = step+1
-          curr_path.add(curr)
-          bt(step+1, (ni, nj), curr_path)
-          curr_path.remove(curr)
+    while stack:
+      n, i, j = stack.pop()
+      
+      if n != 0 and (i, j) in points:
+        graph[(si, sj)][(i, j)] = n
+        continue
+      
+      for y, x in dirs[grid[i][j]] if part == 1 else dirs['.']:
+        ni, nj = i+y, j+x
+        if 0 <= ni < len(grid) and 0 <= nj < len(grid[0]) and grid[ni][nj] != '#' and (ni, nj) not in seen:
+          stack.append((n+1, ni, nj))
+          seen.add((ni, nj))
+        
+seen = set()
+def dfs(pt: tuple[int, int]) -> int:
+  if pt == end:
+    return 0
   
-  bt(0, init_pos, set())
-  return max_path[end_pos[0]][end_pos[1]]
-          
+  m = -float('inf')
+  
+  seen.add(pt)
+  for nxt in graph[pt]:
+    if nxt not in seen:
+      m = max(m, dfs(nxt) + graph[pt][nxt])
+  seen.remove(pt)  
+  
+  return m
 
-def main() -> None:
-  sys.setrecursionlimit(9999)  # This line is required to not get RecursionError exception
-  M = get_map('./input.txt')
-  print(f'Part One: {part_one(M)}')
+make_graph(part=1)
+print(f'Part One: {dfs(start)}')
 
-
-if __name__ == "__main__":
-  main()
-# end main
+seen.clear()
+clear_graph()
+make_graph(part=2)
+print(f'Part Two: {dfs(start)}')
