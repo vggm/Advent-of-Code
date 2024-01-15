@@ -1,5 +1,6 @@
 
 import sys
+from collections import deque
 sys.setrecursionlimit(9999)
 
 MOVES : dict = {
@@ -69,3 +70,36 @@ for i, j, d in [(0, 0, 'd'), (rows-1, 0, 'u'), (0, 0, 'r'), (0, cols-1, 'l')]:
     res = max(len(energized_cells), res)
 
 print(f'Part Two Answer: {res}')
+
+
+# Iterative Solution
+def iterative_beam_path(curr: State):
+  seen : set = set()
+  stack = deque([curr])
+  energized_cells : set = set()
+  while stack:
+    i, j, d = stack.popleft()
+    cell_type = cavern[i][j]
+    
+    seen.add((i, j, d))
+    energized_cells.add((i, j))
+
+    for ii, jj, nd in MOVES[cell_type][d]:
+      ni, nj = i+ii, j+jj
+      if 0 <= ni < rows and 0 <= nj < cols and (ni, nj, nd) not in seen:
+        stack.append((ni, nj, nd))
+  
+  return len(energized_cells)
+
+print(f'Iterative Solution Part 1: {iterative_beam_path(start)}')
+
+res = 0
+res = max(
+  res,
+  *(iterative_beam_path((0, s, 'd')) for s in range(rows)),
+  *(iterative_beam_path((rows-1, s, 'u')) for s in range(rows)),
+  *(iterative_beam_path((s, 0, 'r')) for s in range(rows)),
+  *(iterative_beam_path((s, cols-1, 'l')) for s in range(rows)),
+)
+
+print(f'Iterative Solution Part 2: {res}')
