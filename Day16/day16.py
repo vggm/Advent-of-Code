@@ -95,11 +95,13 @@ print(f'Iterative Solution Part 1: {iterative_beam_path(start)}')
 
 res = 0
 res = max(
-  res,
-  *(iterative_beam_path((0, s, 'd')) for s in range(rows)),
-  *(iterative_beam_path((rows-1, s, 'u')) for s in range(rows)),
-  *(iterative_beam_path((s, 0, 'r')) for s in range(rows)),
-  *(iterative_beam_path((s, cols-1, 'l')) for s in range(rows)),
+  max(
+    res, 
+    iterative_beam_path((0, s, 'd')),
+    iterative_beam_path((rows-1, s, 'u')),
+    iterative_beam_path((s, 0, 'r')),
+    iterative_beam_path((s, cols-1, 'l'))
+  ) for s in range(rows)
 )
 
 print(f'Iterative Solution Part 2: {res}')
