@@ -82,12 +82,13 @@ for name, conj in conjuntions.items():
       cont += 1
   conj.set_inputs(cont)
 
-pulses_needed = { # based on input
+pulses_needed = { # based on aoc input
   'vt': 0,
   'sk': 0, 
   'xc': 0,
   'kk': 0,
 }
+part2_done = False
 
 low = 0
 high = 0
@@ -114,6 +115,9 @@ for i in range(10000):
       if module.name in pulses_needed.keys() and pulse_to_send == HIGH_PULSE:
         if pulses_needed[module.name] == 0:
           pulses_needed[module.name] = i+1
+          if all(pulses_needed.values()):
+            part2_done = True 
+            break
       
       if i < 1000: # part one
         if pulse_to_send == LOW_PULSE:
@@ -128,7 +132,9 @@ for i in range(10000):
         continue
         
       stack.append(m_adj)
-    
+  
+  if part2_done:
+    break
   # print()
 
 ans = high * low
