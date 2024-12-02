@@ -40,15 +40,13 @@ def part_two(input: list[str]) -> int:
   
   cnt = 0
   for row in m:
+    # if original row is safe, go next
     if is_safe(row):
       cnt += 1
+      continue
     
-    else:
-      # remove 1 to 1 each element and try if it is save now
-      for i in range(len(row)):
-        if is_safe(row[:i] + row[i+1:]):
-          cnt += 1
-          break   
+    # remove 1 to 1 each element and try if it is save now
+    cnt += any(is_safe(row[:i] + row[i+1:]) for i in range(len(row))) 
     
   return cnt
 
