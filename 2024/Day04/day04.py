@@ -39,9 +39,8 @@ def part_two(mx: list[str]) -> int:
   n, m = len(mx), len(mx[0])
   
   def check_X(i, j):
-    xmass = Counter('MMSS')
-    tl, tr, bl, br = mx[i-1][j-1], mx[i-1][j+1], mx[i+1][i-1], mx[i+1][j+1]
-    return Counter(tl+tr+bl+br) == xmass
+    tl, tr, bl, br = mx[i-1][j-1], mx[i-1][j+1], mx[i+1][j-1], mx[i+1][j+1]
+    return tl+tr+bl+br in set(['MMSS', 'SSMM', 'SMSM', 'MSMS'])
   
   total = 0
   for i, row in enumerate(mx):  
