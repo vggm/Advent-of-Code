@@ -1,5 +1,3 @@
-
-
 from collections import defaultdict, deque
 
 
@@ -36,6 +34,40 @@ def correct(nums: list[int], rules: dict[int, set[int]]) -> list[int]:
   return []
 
 
+def correct_with_swaps(nums: list[int], rules: dict[int, set[int]]) -> list[int]:
+  nums_set = set(nums)
+  nnums = nums[:]
+  
+  local_rules = defaultdict(list) 
+  for node, adjs in rules.items():
+    if node not in nums_set:
+      continue
+    
+    for adj in adjs:
+      if adj in nums_set:
+        local_rules[node] += [adj]
+  
+  pos = {n: i for i, n in enumerate(nums)}
+  
+  i = 0
+  while i < len(nums):    
+    curr = nnums[i]
+    change = False 
+    
+    for r in local_rules[curr]:
+      if pos[r] < pos[curr]:
+        ii, jj = pos[curr], pos[r]
+        pos[r], pos[curr] = pos[curr], pos[r]
+        nnums[ii], nnums[jj] = nnums[jj], nnums[ii]
+        i = jj + 1
+        change = True
+        
+    if not change:
+      i += 1
+
+  return nnums
+
+
 def is_correct(nums: list[int], rules: dict[int, set[int]]) -> bool:
   seen = set()
   for x in nums:
@@ -59,7 +91,7 @@ def solve(input: list[str]) -> tuple[int, int]:
       part1 += nums[len(nums) // 2]
     
     else:
-      part2 += correct(nums, rules)[len(nums) // 2]
+      part2 += correct_with_swaps(nums, rules)[len(nums) // 2]
   
   return part1, part2
 
