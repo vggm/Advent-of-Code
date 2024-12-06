@@ -11,6 +11,9 @@ def read_file(filename: str) -> list[str]:
       
     return lines
   
+WALL, GUARD, VOID = "#", "^", "."
+DIR = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+#        UP      RIGHT   DOWN    LEFT
 
 def get_guard_coords(maze: list[str]) -> tuple[int, int]:
   for i, row in enumerate(maze):
@@ -21,25 +24,30 @@ def get_guard_coords(maze: list[str]) -> tuple[int, int]:
   return -1, -1
 
 
-WALL, GUARD = "#", "^"
-DIR = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 def part_one(maze: list[str]) -> int:
-  maze = list(map(lambda s: s.removesuffix("\n"), maze))
   
   n, m = len(maze), len(maze[0])
   i, j = get_guard_coords(maze)
     
-  seen = set()
+  seen = set() # to avoid count a cross twice use set
   curr_dir = 0
   di, dj = DIR[0]
-  while 0 <= i < n and 0 <= j < m:
+  while 0 <= i < n and 0 <= j < m: # if False, found the escape
     seen.add((i, j))
 
     ni, nj = i + di, j + dj
-    if not(0 <= ni < n and 0 <= nj < m):
+    if not(0 <= ni < n and 0 <= nj < m): # found escape from the maze
       break
     
-    if maze[ni][nj] == WALL:
+    # use while to avoid walk through the wall when there is
+    # a wall at the right
+    # 
+    #    #      #      #
+    #    ^# ->  ># ->  v#
+    #
+    while maze[ni][nj] == WALL:
+      # using mod can make the process:
+      # 0 1 2 3 0 1 2 3 ... up right down left up right down left ...
       curr_dir = (curr_dir + 1) % len(DIR)
       di, dj = DIR[curr_dir]
       ni, nj = i+di, j+dj
@@ -51,24 +59,23 @@ def part_one(maze: list[str]) -> int:
 
 def check_loop(curr_dir: int, obstacle: tuple[int, int], maze: list[str]) -> bool:
   n, m = len(maze), len(maze[0])
+  
   oi, oj = obstacle
   di, dj = DIR[curr_dir]
-  i, j = oi-di, oj-dj
+  i, j = oi-di, oj-dj # previous position, where is the guard
   
-  if maze[oi][oj] == WALL:
-    return False
-  
-  maze[oi][oj] = WALL
+  maze[oi][oj] = WALL # set the wall
   visited = set()
   
   while 0 <= i < n and 0 <= j < m:
     if (i, j, curr_dir) in visited: # loop found 
-      maze[oi][oj] = '.'
+      maze[oi][oj] = VOID # remove the wall
       return True
 
-    if maze[i][j] == WALL:
-      print('hotia')
-    visited.add((i, j, curr_dir))
+    if maze[i][j] == WALL: # yapping
+      print('o fac')
+      
+    visited.add((i, j, curr_dir)) # save all the states
     
     ni, nj = i+di, j+dj
     if not(0 <= ni < n and 0 <= nj < m):
@@ -81,35 +88,43 @@ def check_loop(curr_dir: int, obstacle: tuple[int, int], maze: list[str]) -> boo
     
     i, j = ni, nj
   
-  maze[oi][oj] = '.'
+  maze[oi][oj] = VOID # remove wall
   return False
     
 
 def part_two(maze: list[str]) -> int:
+  # in this case have to make the tuple as a list instead of str
+  # because python doesnt allow str assigment: str are inmutable
   maze = list(map(lambda s: [x for x in s], maze))
+  
   n, m = len(maze), len(maze[0])
   i, j = get_guard_coords(maze)
     
   curr_dir = 0
   di, dj = DIR[0]
-  obstacle_seen = set()
+  visited = set() # where the guard pass
+  obstacles_that_make_loops = 0 # solution
   while 0 <= i < n and 0 <= j < m:
+    visited.add((i, j))
+    
     ni, nj = i + di, j + dj
-    if not(0 <= ni < n and 0 <= nj < m):
+    if not(0 <= ni < n and 0 <= nj < m): # end of path
       break
       
-    if maze[ni][nj] == WALL:
+    # same method as before
+    while maze[ni][nj] == WALL:
       curr_dir = (curr_dir + 1) % len(DIR)
       di, dj = DIR[curr_dir]
       ni, nj = i+di, j+dj
     
-    else:
-      if (i, j) not in obstacle_seen and check_loop(curr_dir, (ni, nj), maze):
-        obstacle_seen.add((i, j))
+    # the wall cannot be set in a place where the guard has been
+    #   he could notice it and we dont want that
+    if (ni, nj) not in visited and check_loop(curr_dir, (ni, nj), maze):
+      obstacles_that_make_loops += 1
     
     i, j = ni, nj
     
-  return len(obstacle_seen)
+  return obstacles_that_make_loops
 
 
 if __name__ == '__main__':
