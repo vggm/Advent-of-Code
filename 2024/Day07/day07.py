@@ -10,8 +10,9 @@ def pr(s: str, ans: int):
   print(s, ans)
   cp.copy(ans)
 
+
 operations = ["+", "*"]
-def make_op(x: int, y: int, op: str):
+def make_op(x: int, y: int, op: str) -> int:
   match op:
     case "+":
       return x + y
@@ -64,15 +65,7 @@ def part_one(input: list[str]) -> int:
 
 def part_two(input: list[str]) -> int:
   operations.append("||")
-  
-  ans = 0
-  for test, nums in map(lambda s: s.split(": "), input):
-    nums = list(map(int, nums.split()))
-    test = int(test)
-    
-    ans += test if bt(0, len(nums), nums, test, 0) else 0
-    
-  return ans
+  return part_one(input)
 
 
 if __name__ == '__main__':
