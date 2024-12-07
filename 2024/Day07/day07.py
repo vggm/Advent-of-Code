@@ -21,6 +21,7 @@ def make_op(x: int, y: int, op: str) -> int:
     case "||":
       lenght = 0
       
+      # could be len(str(y)) too
       yy = y
       while yy > 0:
         lenght += 1
