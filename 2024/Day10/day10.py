@@ -11,13 +11,6 @@ def pr(s: str, ans: int):
   cp.copy(ans)
 
 
-def get_id():
-  i = 0
-  while True:
-    yield i
-    i += 1
-
-
 def part_one(mapp: list[str]) -> int:
   n, m = len(mapp), len(mapp[0])
   mapp = list(map(lambda row: list(map(int, list(row))), mapp))
@@ -35,13 +28,10 @@ def part_one(mapp: list[str]) -> int:
                     and (ni, nj) not in seen            # not seen
                     and mapp[ni][nj] == mapp[i][j] + 1) # the next val is 1 above curr val
   
-  ans = 0
-  for i, row in enumerate(mapp):
-    for j, val in enumerate(row):
-      if val == 0:
-        ans += bt(i, j, set())
-  
-  return ans
+  return sum(bt(i, j, set())
+              for i, row in enumerate(mapp)
+                for j, val in enumerate(row)
+                  if val == 0)
 
 
 def part_two(mapp: list[str]) -> int:
@@ -49,23 +39,21 @@ def part_two(mapp: list[str]) -> int:
   mapp = list(map(lambda row: list(map(int, list(row))), mapp))
   # print(mapp)
   
+  # same as p1 but not saving the positions visited
   def bt(i: int, j: int) -> int:
     
-    if mapp[i][j] == 0:
+    if mapp[i][j] == 9:
       return 1
     
     return sum(bt(ni, nj) 
                 for ni, nj in [(i+1, j), (i-1, j), (i, j+1), (i, j-1)] 
                   if 0 <= ni < n and 0 <= nj < m        # inside the map
-                    and mapp[ni][nj] == mapp[i][j] - 1) # the next val is 1 below curr val
+                    and mapp[ni][nj] == mapp[i][j] + 1) # the next val is 1 above curr val
   
-  ans = 0
-  for i, row in enumerate(mapp):
-    for j, val in enumerate(row):
-      if val == 9:
-        ans += bt(i, j)
-  
-  return ans
+  return sum(bt(i, j)
+              for i, row in enumerate(mapp)
+                for j, val in enumerate(row)
+                  if val == 0)
 
 
 if __name__ == '__main__':
