@@ -89,8 +89,6 @@ class Region:
     print("Total sides:", self.total_sides, "\n")
     return self.total_sides
     
-          
- 
 
 def part_one(garden: list[str]) -> int:
   n, m = len(garden), len(garden[0])
