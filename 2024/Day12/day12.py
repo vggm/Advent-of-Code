@@ -158,7 +158,7 @@ if __name__ == '__main__':
   if len(sys.argv) < 2:
     print("Usage: python3 dayXX.py input.in")
     exit()
-  # filename = "./test2.in"
+
   for filename in sys.argv[1:]:
     print(f"Filename: [ {filename} ]")
     input = read_file(filename)
