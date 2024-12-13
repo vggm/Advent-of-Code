@@ -71,8 +71,6 @@ class Region:
           side_dir.add((i, j))
       sides.append(side_dir.copy())
       
-    print(sides)
-    
     for side in sides:
       while side:
         i, j = side.pop()
