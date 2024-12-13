@@ -24,11 +24,6 @@ class Region:
     self.perimeter: int = 0
     self.structure: set[Coord] = set()
     
-    self.top: set[Coord] = set()
-    self.left: set[Coord] = set()
-    self.right: set[Coord] = set()
-    self.bottom: set[Coord] = set()
-    
     self.matrix = None
     
   def _calculate_extremes(self) -> tuple[int, int, int, int]:
