@@ -16,16 +16,66 @@ Coord = tuple[int, int]
 
 
 class Region:
-  area: int = 0
-  side: int = 0
-  perimeter: int = 0
-  corner: set[Coord] = set()
-  contour: set[Coord] = set()
-  contour_freq: defaultdict[int] = defaultdict(int)
+  
+  
+  def __init__(self, letter="#"):
+    self.area: int = 0
+    self.side: int = 0
+    self.letter: str = "#"
+    self.perimeter: int = 0
+    self.diagonal: set[Coord] = set()
+    self.contour: set[Coord] = set()
+    self.structure: set[Coord] = set()
+    self.contour_freq: defaultdict[int] = defaultdict(int)
+
+    self.tl, br = (0, 0), (0, 0)
+    self.extremes_calculated = False
+
+    self.matrix = None
+    self.matrix_drew = False
+    self.letter = letter
+    
+  def calculate_extremes(self) -> tuple[int, int, int, int]:
+    if self.extremes_calculated:
+      return *self.tl, *self.br
+    self.extremes_calculated = True
+    
+    mmi, mmj, mxi, mxj = float('inf'), float('inf'), -float('inf'), -float('inf')
+    for i, j in self.structure:
+      mmi, mmj = min(mmi, i), min(mmj, j)
+      mxi, mxj = max(mxi, i), max(mxj, j)
+    
+    self.tl = (mmi, mmj)
+    self.br = (mxi, mxj)
+    return mmi, mmj, mxi, mxj
+  
+  def draw(self, n=None, m=None):
+    if n is not None and m is not None:
+      matrix = [[0 for _ in range(m)] for _ in range(n)]
+      for i, j in self.structure:
+        matrix[i][j] = 1
+
+    elif not self.matrix_drew:
+      self.matrix_drew = True
+      mmi, mmj, mxi, mxj = self.calculate_extremes()
+      idiff, jdiff = mmi, mmj
+      
+      matrix = [[0 for _ in range(mxj+1)] for _ in range(mxi+1)]
+      for i, j in self.structure:
+        i, j = i-idiff, j-jdiff
+        matrix[i][j] = 1
+        
+    for row in matrix:
+      for val in row:
+        print(' ' if not val else self.letter, end='')
+      print()
   
   def calculate_sides(self) -> int:
-    print(self.contour)
-    print(self.contour_freq)
+    print("Diagonal:", self.diagonal)
+    print("Contorno:", self.contour)
+    print("Freq:", self.contour_freq)
+    print("Corners Filtrado:", [(i, j) for (i, j), f in self.contour_freq.items() if f == 1 and (i, j) in self.diagonal])
+    print("\n")
     # contour = self.contour.copy()
     # side = 1
     
@@ -43,8 +93,9 @@ def part_one(garden: list[str]) -> int:
   
   visited: set[Coord] = set()
   def dfs(i: int, j: int, region: Region):
-    region.area += 1
+    region.structure.add((i, j))
     visited.add((i, j))
+    region.area += 1
     
     for ni, nj in [(i+1, j), (i-1, j), (i, j+1), (i, j-1)]:
       if (ni < 0 or ni == n or nj < 0 or nj == m) or garden[ni][nj] != garden[i][j]:
@@ -56,9 +107,9 @@ def part_one(garden: list[str]) -> int:
   
   total_price = 0
   for i, row in enumerate(garden):
-    for j, _ in enumerate(row):        
+    for j, letter in enumerate(row):        
       if (i, j) not in visited:
-        region = Region()
+        region = Region(letter)
         dfs(i, j, region)
         total_price += region.area * region.perimeter
   
@@ -70,12 +121,14 @@ def part_two(garden: list[str]) -> int:
     
   visited: set[Coord] = set()
   def dfs(i: int, j: int, contour: Region):
+    region.structure.add((i, j))
     visited.add((i, j))
     region.area += 1
     
     # check diagonally
     for ni, nj in [(i-1, j-1), (i-1, j+1), (i+1, j-1), (i+1, j+1)]:
       if (ni < 0 or ni == n or nj < 0 or nj == m) or garden[ni][nj] != garden[i][j]:
+        region.diagonal.add((ni, nj))
         region.contour.add((ni, nj))
         region.contour_freq[(ni, nj)] += 1
     
@@ -92,10 +145,11 @@ def part_two(garden: list[str]) -> int:
   
   total_price = 0
   for i, row in enumerate(garden):
-    for j, _ in enumerate(row):        
+    for j, letter in enumerate(row):        
       if (i, j) not in visited:
-        region = Region()
+        region = Region(letter)
         dfs(i, j, region)
+        region.draw(n, m)
         region.calculate_sides()
         # total_price += region.area * region.side
   
