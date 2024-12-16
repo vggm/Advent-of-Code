@@ -11,11 +11,11 @@ def pr(s: str, ans: int):
   cp.copy(ans)
  
 
-def part_one(input: list[str]) -> int:
+def part_one(file_input: list[str]) -> int:
   return -1
 
 
-def part_two(input: list[str]) -> int:
+def part_two(file_input: list[str]) -> int:
   return -1
 
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     print("Usage: python3 dayXX.py input.in")
     exit()
   
-  input = read_file(sys.argv[1])
-  pr("Part One:", part_one(input))
-  # pr("Part Two:", part_two(input))
+  file_input = read_file(sys.argv[1])
+  pr("Part One:", part_one(file_input))
+  # pr("Part Two:", part_two(file_input))
   
