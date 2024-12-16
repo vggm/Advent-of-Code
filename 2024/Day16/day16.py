@@ -50,8 +50,8 @@ def part_one(maze: list[str]) -> int:
   start, end = get_coords(maze)
   i, j = start
   
-  visited: dict[Coord, int] = {}
   stack = [(0, "e", i, j)]
+  visited: dict[Coord, int] = {}
   while stack:
     d, f, i, j = heappop(stack)
     
@@ -64,21 +64,55 @@ def part_one(maze: list[str]) -> int:
     
     di, dj = face2dir[f]
     ni, nj = i+di, j+dj
-    if 0 <= ni < n and 0 <= nj < m and maze[ni][nj] != WALL:
-      if (ni, nj, f) not in visited or visited[(ni, nj, f)] > d:
+    if 0 <= ni < n and 0 <= nj < m and maze[ni][nj] != WALL \
+      and ((ni, nj, f) not in visited or visited[(ni, nj, f)] > d):
         heappush(stack, (d+1, f, ni, nj))
     
     for di, dj, nf in nextDir[f]:
       ni, nj = i+di, j+dj
-      if 0 <= ni < n and 0 <= nj < m and maze[ni][nj] != WALL:
-        if (i, j, nf) not in visited or visited[(i, j, nf)] > d:
+      if 0 <= ni < n and 0 <= nj < m and maze[ni][nj] != WALL \
+        and ((i, j, nf) not in visited or visited[(i, j, nf)] > d):
           heappush(stack, (d+1000, nf, i, j))
        
   return -1
 
 
 def part_two(maze: list[str]) -> int:
-  return -1
+  n, m = len(maze), len(maze[0])
+  
+  start, end = get_coords(maze)
+  i, j = start
+  
+  best_mark = float('inf')
+  
+  best_paths: set[Coord] = set()
+  stack = [(0, "e", 0, i, j, set())]
+  visited: dict[Coord, int] = {}
+  while stack:
+    d, f, step, i, j, path = heappop(stack)
+
+    if (i, j) in visited and visited[(i, j)] < d:
+      continue
+    visited[(i, j, f)] = d
+    
+    if (i, j) == end and d <= best_mark:
+      best_mark = d
+      best_paths |= path | {end}
+      continue
+    
+    di, dj = face2dir[f]
+    ni, nj = i+di, j+dj
+    if 0 <= ni < n and 0 <= nj < m and maze[ni][nj] != WALL \
+      and ((ni, nj, f) not in visited or visited[(ni, nj, f)] >= d):
+        heappush(stack, (d+1, f, step+1, ni, nj, path | {(i, j)}))
+    
+    for di, dj, nf in nextDir[f]:
+      ni, nj = i+di, j+dj
+      if 0 <= ni < n and 0 <= nj < m and maze[ni][nj] != WALL \
+        and ((i, j, nf) not in visited or visited[(i, j, nf)] >= d):
+          heappush(stack, (d+1000, nf, step, i, j, path))
+       
+  return len(best_paths)
 
 
 if __name__ == '__main__':
@@ -89,5 +123,5 @@ if __name__ == '__main__':
   
   file_input = read_file(sys.argv[1])
   pr("Part One:", part_one(file_input))
-  # pr("Part Two:", part_two(file_input))
+  pr("Part Two:", part_two(file_input))
   
