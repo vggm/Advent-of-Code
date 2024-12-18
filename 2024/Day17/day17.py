@@ -77,7 +77,7 @@ class CPU:
     return val
 
   def _adv(self):
-    self.A = int(self.A / (2 ** self._calculate_combo()))
+    self.A //= (2 ** self._calculate_combo())
   
   def _bxl(self):
     self.B ^= self.operand
@@ -94,17 +94,22 @@ class CPU:
     self.B ^= self.C
   
   def _out(self):
-    self.output.append(self._calculate_combo() % 8)
-    if self.find_target \
-      and self.output[-1] != self.target[len(self.output)-1]:
-        self.pointer = len(self.target)+10
+    res = self._calculate_combo() % 8
+    if self.find_target and res != self.target[len(self.output)]:
+      self.pointer = len(self.target) + 10
+      return
+    
+    self.output.append(res)
+    
+    if len(self.output) == len(self.target):
+      self.pointer = len(self.target) + 10
     print(",".join(map(str, self.output)), end='\r')
 
   def _bdv(self):
-    self.B = int(self.A / (2 ** self._calculate_combo()))
+    self.B = self.A // (2 ** self._calculate_combo())
   
   def _cdv(self):
-    self.C = int(self.A / (2 ** self._calculate_combo()))
+    self.C = self.A // (2 ** self._calculate_combo())
 
 
 def get_params(file: list[str]) -> tuple[list[int], list[int]]:
@@ -128,7 +133,7 @@ def part_two(file_input: list[str]) -> int:
   _, program = get_params(file_input)
   str_program = ",".join(map(str,program))
   
-  ans = 1_000_000
+  ans = 117440
   cpu = CPU(A=ans, find_target=True)
   while cpu.run(program) != str_program:
     ans += 1
@@ -145,5 +150,5 @@ if __name__ == '__main__':
 
   file_input = read_file(sys.argv[1])
   pr("Part One:", part_one(file_input))
-  pr("Part Two:", part_two(file_input))
+  # pr("Part Two:", part_two(file_input))
   
