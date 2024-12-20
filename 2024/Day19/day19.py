@@ -1,3 +1,4 @@
+from functools import cache
 import sys
 import pyperclip as cp
 
@@ -19,69 +20,33 @@ def get_params(lines: str) -> tuple[set[str], list[str]]:
   
   return patterns, designs
   
+
+@cache
+def possibilities(e: int, curr: str, design: str) -> int:
+  global patterns
   
-def is_possible_bt(e: int, curr: str, design: str, patterns: set[str], seen=set()) -> int:
-  if curr in seen:
-    return 0
-  if e >= len(design):
-    return 1 if not curr else 0
+  if e == len(design):
+    return len(curr) == 0 # True add 1, False add 0
   
   total = 0
   for i, c in enumerate(design[e:], start=e):
     curr += c
-    seen.add(curr)
     if curr in patterns:
-      total += is_possible_bt(i+1, '', design, patterns)
-    
-    total += is_possible_bt(i+1, curr, design, patterns)
+      total += possibilities(i+1, '', design)
   
   return total
-  
-  
-def is_possible(design: str, patterns: set[str], p1=True) -> int:
-  step_back = []
-  found = 0
-  
-  seen = set()
-  start, end = 0, 1
-  while end <= len(design) or step_back:
-
-    if end >= len(design)+1:
-      start, end = step_back.pop()
-      
-    if end <= len(design) and design[start:end] in patterns and (start, end) not in seen:
-      seen.add((start, end))
-      step_back.append((start, end+1))
-      start = end
-      
-    if start == len(design):
-      found += 1
-      end = len(design)+1
-      
-      if p1:
-        return found
-      
-      continue
-    
-    end += 1
-  
-  return found
   
 
 def part_one(file_input: list[str]) -> int:
+  global patterns
   patterns, designs = get_params(file_input)
-  return sum(is_possible(design, patterns)>0 for design in designs)
+  return sum(possibilities(0, '', design) > 0 for design in designs)
 
 
 def part_two(file_input: list[str]) -> int:
+  global patterns
   patterns, designs = get_params(file_input)
-  total = 0
-  for design in designs:
-    t = is_possible_bt(0, '', design, patterns)
-    total += t
-    print(t)
-  return total
-  return sum(is_possible_bt(0, '', design, patterns) for design in designs)
+  return sum(possibilities(0, '', design) for design in designs)
 
 
 if __name__ == '__main__':
