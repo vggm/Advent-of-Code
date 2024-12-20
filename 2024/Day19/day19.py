@@ -20,16 +20,22 @@ def get_params(lines: str) -> tuple[set[str], list[str]]:
   return patterns, designs
   
   
-def is_possible_bt(e: int, curr: str, design: str, patterns: set[str]) -> int:
-  if e == len(design):
-    pass
+def is_possible_bt(e: int, curr: str, design: str, patterns: set[str], seen=set()) -> int:
+  if curr in seen:
+    return 0
+  if e >= len(design):
+    return 1 if not curr else 0
   
   total = 0
-  for i, c in enumerate(design[e:]):
-    if curr + c in patterns:
+  for i, c in enumerate(design[e:], start=e):
+    curr += c
+    seen.add(curr)
+    if curr in patterns:
       total += is_possible_bt(i+1, '', design, patterns)
     
-    total += is_possible_bt(e+1, curr + c, design, patterns)
+    total += is_possible_bt(i+1, curr, design, patterns)
+  
+  return total
   
   
 def is_possible(design: str, patterns: set[str], p1=True) -> int:
@@ -69,16 +75,23 @@ def part_one(file_input: list[str]) -> int:
 
 def part_two(file_input: list[str]) -> int:
   patterns, designs = get_params(file_input)
-  return sum(is_possible(design, patterns, p1=False) for design in designs)
+  total = 0
+  for design in designs:
+    t = is_possible_bt(0, '', design, patterns)
+    total += t
+    print(t)
+  return total
+  return sum(is_possible_bt(0, '', design, patterns) for design in designs)
 
 
 if __name__ == '__main__':
   
-  if len(sys.argv) < 2:
-    print("Usage: python3 dayXX.py input.in")
-    exit()
+  # if len(sys.argv) < 2:
+  #   print("Usage: python3 dayXX.py input.in")
+  #   exit()
   
-  file_input = read_file(sys.argv[1])
+  # file_input = read_file(sys.argv[1])
+  file_input = read_file("./input.in")
   pr("Part One:", part_one(file_input))
   pr("Part Two:", part_two(file_input))
   
