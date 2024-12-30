@@ -91,7 +91,7 @@ def part_two(file_input: list[str]) -> int:
   
   seen = set()
   variables = [var for _, var in temp_op]
-  taken = [False] * len(variables)
+  taken = [False] * (len(variables) + 1)
   def bt(e: int, n: int, parcial: list[str]) -> tuple:
     if n == 4:
       s_par = set(parcial)
@@ -99,7 +99,8 @@ def part_two(file_input: list[str]) -> int:
       values = temp_vl.copy()
       operations = temp_op.copy()
       
-      while operations:
+      loops = 3
+      while operations and loops:
         operation, result = operations.popleft()
         
         if result in s_par:
@@ -116,6 +117,11 @@ def part_two(file_input: list[str]) -> int:
           values[result] = do_operation(values[a], values[b], op)
         else:
           values[n_result] = do_operation(values[a], values[b], op)
+        
+        loops -= 1
+      
+      if not loops and operations:
+        return []
       
       z = dict_to_bin(values, "z")
       return parcial if z == target else []
@@ -124,8 +130,8 @@ def part_two(file_input: list[str]) -> int:
       if taken[i]:
         continue
       taken[i] = True
-      for j, b in enumerate(variables):
-        if taken[j] or (a, b) in seen or (b, a) in seen:
+      for j, b in enumerate(variables[i+1:], start=i+1):
+        if taken[j]:
           continue
         taken[j] = True
         
