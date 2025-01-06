@@ -86,68 +86,20 @@ def part_two(file_input: list[str]) -> int:
     
     values[result] = do_operation(values[a], values[b], op)
     
-  x, y = dict_to_bin(values, "x"), dict_to_bin(values, "y")
+  x, y, z = dict_to_bin(values, "x"), dict_to_bin(values, "y"), dict_to_bin(values, "z")
   target = str(bin(int(x,2) + int(y,2)))[2:]
   
-  seen = set()
-  variables = [var for _, var in temp_op]
-  taken = [False] * (len(variables) + 1)
-  def bt(e: int, n: int, parcial: list[str]) -> tuple:
-    if n == 4:
-      s_par = set(parcial)
-      
-      values = temp_vl.copy()
-      operations = temp_op.copy()
-      
-      loops = 3
-      while operations and loops:
-        operation, result = operations.popleft()
-        
-        if result in s_par:
-          index = get_index(parcial, result)
-          n_result = parcial[index-1] if index % 2 == 1 else parcial[index+1]
-        
-        a, op, b = operation.split()
-        
-        if a not in values or b not in values:
-          operations.append((operation, result))
-          continue
-      
-        if result not in s_par:
-          values[result] = do_operation(values[a], values[b], op)
-        else:
-          values[n_result] = do_operation(values[a], values[b], op)
-        
-        loops -= 1
-      
-      if not loops and operations:
-        return []
-      
-      z = dict_to_bin(values, "z")
-      return parcial if z == target else []
-    
-    for i, a in enumerate(variables[e:], start=e):
-      if taken[i]:
-        continue
-      taken[i] = True
-      for j, b in enumerate(variables[i+1:], start=i+1):
-        if taken[j]:
-          continue
-        taken[j] = True
-        
-        # seen.add((a, b, n))
-        # seen.add((b, a, n))
-        
-        if sol := bt(i+1, n+1, parcial + [a] + [b]):
-          return sol
-        
-        taken[j] = False
-      taken[i] = False
-      
-    return []
-          
+  print(f"X: {x}")
+  print(f"Y: {y}")
+  print(f"Z: {z}")
+  print(f"T: {target}")
   
-  return ",".join(sorted(bt(0, 0, [])))
+  cnt = 0
+  for i, j in zip(z, target):
+    if i != j:
+      cnt += 1
+  
+  return cnt // 2
 
 
 if __name__ == '__main__':
