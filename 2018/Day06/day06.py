@@ -1,7 +1,5 @@
-from collections import defaultdict
-import sys
+from collections import defaultdict, deque
 
-sys.setrecursionlimit(10000)
 
 LIMIT = (32, 10000)[1] # 0 for test, 1 for input
 with open("./input.txt", "r") as fr:
@@ -16,6 +14,8 @@ for coord_id, (j, i) in enumerate(coords, start=1):
     right = max(j, right)
     coords_to_id[(i, j)] = coord_id
 
+
+# =========== PART 1 ===========
 
 outside_areas_id = set()
 area_size = defaultdict(int)
@@ -39,10 +39,13 @@ for i in range(top + 1):
                 outside_areas_id.add(coord_id)
 
 
-print(f"\nPart One: {max(
+print(f"Part One: {max(
     area 
         for coord_id, area in area_size.items() 
             if coord_id not in outside_areas_id)}")
+
+
+# =========== PART 2 ===========
 
 coords_less_than_limit = set()
 for i in range(top + 1):
@@ -53,24 +56,31 @@ for i in range(top + 1):
         
         if dist_sum < LIMIT:
             coords_less_than_limit.add((i, j))
-
-def explore(i: int, j: int) -> int:    
-    seen.add((i, j))
-    
-    total_sum = 0
-    for ni, nj in [(i+1, j), (i-1, j), (i, j+1), (i, j-1)]:
-        if (ni, nj) in coords_less_than_limit and (ni, nj) not in seen:
-            total_sum += explore(ni, nj)
-    
-    return total_sum + 1
     
 
 seen = set()
-areas_less_than_limit = []
+max_area = 0
 for i in range(top + 1):
     for j in range(right + 1):
         if (i, j) in coords_less_than_limit and (i, j) not in seen:
-            areas_less_than_limit += [explore(i, j)]
+            
+            # expand point
+            explored_points = 0
+            stack = deque([(i, j)])
+            while stack:
+                i, j = stack.popleft()
+                
+                if (i, j) in seen:
+                    continue
+                
+                seen.add((i, j))
+                explored_points += 1
+                
+                for ni, nj in [(i+1, j), (i-1, j), (i, j+1), (i, j-1)]:
+                    if (ni, nj) in coords_less_than_limit and (ni, nj) not in seen:
+                        stack.append((ni, nj))
+            
+            # update max area
+            max_area = max(max_area, explored_points) 
 
-print(f"Part Two: {max(areas_less_than_limit)}")
-
+print(f"Part Two: {max_area}")
