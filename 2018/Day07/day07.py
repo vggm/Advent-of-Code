@@ -18,28 +18,27 @@ for line in lines:
 
 # =========== Part One =========== #
 
-# print("Graph:")
-# for key, values in graph.items():
-#     print(f"{key}: {values}")
-# print()
+print("Graph:")
+for key, values in graph.items():
+    print(f"{key}: {values}")
+print()
 
-# print("Pre Req:")
-# for key, value in pre_req.items():
-#     print(f"{key}: {value}")
-# print()
+print("Pre Req:")
+for key, value in pre_req.items():
+    print(f"{key}: {value}")
+print()
 
 start: set[str] = nodes.copy()
 for org, dst_list in graph.items():
     for dst in dst_list:
         if dst in start:
-            start.remove(dst) # dst node never must be a start node
+            start.remove(dst) # dst node never can be a start node
 
-# print(f"{start=}\n")
+print(f"{start=}\n")
 
 stack = []
 for node in start:
-    #               (alphabet_order, curr_node)
-    heappush(stack, (ord(node), node))
+    heappush(stack, (ord(node), node)) # (alphabet_order, curr_node)
 
 path = ""
 while stack:
@@ -53,3 +52,25 @@ while stack:
             heappush(stack, (ord(nxt), nxt))
     
 print(f"Part One: {path}")
+
+
+# =========== Part Two =========== #
+
+STEP_DURATION, N_WORKERS = ((0, 2), (60, 5))[0] # 0 for test, 1 for input
+
+stack = []
+for node in start:
+    heappush(stack, (ord(node), node)) # (alphabet_order, curr_node)
+
+path = ""
+while stack:
+    _, node = heappop(stack)
+    
+    path += node
+    
+    for nxt in graph[node]:
+        pre_req[nxt] -= 1
+        if pre_req[nxt] == 0: # does not have pre req
+            heappush(stack, (ord(nxt), nxt))
+    
+print(f"Part Two: {path}")
