@@ -16,23 +16,24 @@ class CircularLinkedList:
         thirst_node: Node = Node(data=1)
         
         self.head = second_node
-        second_node.nxt = thirst_node
-        second_node.prv = first_node
+        self.head.nxt = thirst_node
+        self.head.prv = first_node
         
-        first_node.nxt = second_node
+        first_node.nxt = self.head
         first_node.prv = thirst_node
         
-        thirst_node.prv = second_node
+        thirst_node.prv = self.head
         thirst_node.nxt = first_node
     
     def insert_node(self, value: int):
         new_node = Node(data=value)
         
         new_node.nxt = self.head.nxt
+        self.head.nxt.prv = new_node
         new_node.prv = self.head
         self.head.nxt = new_node
         
-        self.head = new_node
+        self.head = self.head.nxt
     
     def remove_node(self) -> int:
         data = self.get_data()
@@ -68,7 +69,7 @@ class CircularLinkedList:
 # ============ Part One Function ============ #
 
 def part_one(num_players: int, last_marble: int) -> int:
-    players_points = [0] * (num_players + 1)
+    score_players = [0] * (num_players + 1)
 
     # curr = 1
 
@@ -76,9 +77,8 @@ def part_one(num_players: int, last_marble: int) -> int:
     # game = [0, 2, 1]
     game = CircularLinkedList()
 
-    end = False
     player = 3
-    while not end:
+    while marble < last_marble:
         
         if marble % 23 != 0:
             # new_curr = curr + 2
@@ -94,22 +94,17 @@ def part_one(num_players: int, last_marble: int) -> int:
         else:
             # new_curr = (curr - 7) % len(game)
             # players_points[player] += marble + game.pop(new_curr)
-            game.show()
+
             for _ in range(7):
                 game.backward()
             
-            players_points[player] += marble + game.remove_node()
-            
-            
-        if marble == last_marble:
-            end = True
+            score_players[player] += marble + game.remove_node()
             
         marble += 1
         # curr = new_curr
         player = (player + 1) % num_players
-    
-    print(players_points)
-    return max(players_points) 
+
+    return max(score_players) 
 
 
 # ============ Tests ============ #
@@ -118,7 +113,7 @@ print("### Running Tests ###")
 
 test_success = 0
 for idx, file in enumerate(glob("test*.txt"), start=1):
-    with open("./test0.txt", "r") as fr:
+    with open(file, "r") as fr:
         line = fr.read().strip()
     
     words = line.split(" ")
@@ -148,5 +143,5 @@ print(f"\nPart One: {part_one(num_players=num_players, last_marble=last_marble)}
 
 # ============ Part Two ============ #
 
-print(f"\nPart Two: {part_one(num_players=num_players, last_marble=last_marble*100)}")
+print(f"Part Two: {part_one(num_players=num_players, last_marble=last_marble*100)}")
     
