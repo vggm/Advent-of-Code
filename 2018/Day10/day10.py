@@ -36,57 +36,70 @@ def make_move():
         points[idx] = [ni, nj]
 
 
-for i in range(3):
-    make_move()
-
-
 def show_matrix(m: list[list[int]]):
     for row in m:
         for val in row:
             print(f"{' ' if val == 0 else '#'}", end=" ")
         print()
     print()
-
-
-def create_letter(figure: set):
-    i, j = figure.pop() # first point
+    
+            
+def print_map(points: list[tuple[int, int]]):
+    i, j = points[0] # first point
     top, bottom, left, right = i, i, j, j
-    for i, j in figure:
+    for i, j in points:
         top = min(top, i)
         bottom = max(bottom, i)
         left = min(left, j)
         right = max(right, j)
+        
+    print(f"{top=}, {bottom=}, {left=}, {right=}")
     
-    figure_normalized = set()
-    for i, j in figure:
-        figure_normalized.add((i-top, j-right))
+    height, width = bottom - top + 1, right - left + 1
+    print(f"{height=}, {width=}\n")
     
-    height, width = bottom - top + 1, right - left + 1 
-    print(f"{height}x{width}")
-    
-    # m = [[0 for _ in range(width)] for _ in range(height)]
-    # for i, j in figure:
-    #     m[i - top][j - left] += 1
-    
-    # show_matrix(m)
-    
+    m = [[0 for _ in range(width)] for _ in range(height)]
+    for i, j in points:
+        m[i-top][j-left] = 1
 
-seen = set()
-def explore(i, j, figure: set):
-    seen.add((i, j))
-    figure.add((i, j))
-    
-    for ni, nj in [(i+1, j), (i-1, j), (i, j+1), (i, j-1)]:
-        if (ni, nj) in graph and (ni, nj) not in seen:
-            explore(ni, nj, figure)
+    show_matrix(m)
      
-    
-cnt = 0
-for coord, _ in graph.items():
-    if coord not in seen:
-        figure = set()
-        explore(*coord, figure)
-        create_letter(figure)
-        cnt += 1
 
-print(f"Letters found: {cnt}")
+def calculate_rectangle_area() -> int:
+    i, j = points[0] # first point
+    top, bottom, left, right = i, i, j, j
+    for i, j in points:
+        top = min(top, i)
+        left = min(left, j)
+        right = max(right, j)
+        bottom = max(bottom, i)
+        
+    height, width = bottom - top + 1, right - left + 1
+    return height * width
+
+
+from tqdm import tqdm
+
+minimum_points_found = {}
+
+idx_min = -1
+points_with_min_area = []
+min_area = calculate_rectangle_area()
+for i in tqdm(range(1, 12_000), desc="Finding minimum area"):
+    
+    make_move()
+    area = calculate_rectangle_area()
+    
+    if area < min_area:
+        min_area = area
+        points_with_min_area = points.copy()
+        idx_min = i
+        
+        minimum_points_found[i] = points.copy()
+
+print(f"Index with minimum area: {idx_min}\n") # 10124
+
+# for i in range(10124):
+#     make_move()
+    
+print_map(minimum_points_found[idx_min])
