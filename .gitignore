@@ -1,7 +1,7 @@
 .venv/
 unresolved/
 AoC/
-
+__pycache__
 
 # uv files
 uv.lock
