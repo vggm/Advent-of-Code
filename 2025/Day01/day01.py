@@ -35,14 +35,13 @@ for rotation in rotations:
   
   if dial_pointing < 0:
     cnt += (dial_pointing - steps_number != 0) # only if prev dial pointing DOESNT start at 0
-    dial_pointing %= max_dial # normalize dial pointing
   
-  else:  
+  else: # dial pointing >= 0
     total_rotations += (dial_pointing > max_dial) # if the sum is greater than max
-    dial_pointing %= max_dial # normalize
-  
+    
+  dial_pointing %= max_dial # normalize
+
   is_poiting_at_0 = (dial_pointing == 0) # check if the dial is pointing at 0
   cnt += total_rotations + is_poiting_at_0
   
 print(f"Part Two: {cnt}")
-  
