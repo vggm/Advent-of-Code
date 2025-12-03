@@ -37,7 +37,8 @@ for bank in banks_of_batteries:
   curr = 0
   last = -1
   while curr < num_len:
-    best_idx = np.argmax(bank[last+1:-11+curr if -11+curr < 0 else len(bank)]) + last + 1
+    right_limit = -(num_len-1-curr) if -(num_len-1-curr) < 0 else len(bank)
+    best_idx = np.argmax(bank[last+1:right_limit]) + last + 1
     num += bank[best_idx] * 10 ** (num_len - 1 - curr)
     last = best_idx
     
