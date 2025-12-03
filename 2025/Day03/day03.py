@@ -12,7 +12,7 @@ for bank in banks_of_batteries:
   
   l, r = 0, -1
   for idx, val in enumerate(bank[1:], start=1):
-    if idx != len(bank) - 1 and val > bank[l]:
+    if idx < len(bank) - 1 and val > bank[l]:
       l = idx
       r = -1
     
