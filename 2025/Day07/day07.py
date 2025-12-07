@@ -93,21 +93,28 @@ def search_split(i: int, j: int) -> TNode | None:
   
   for ni in range(i+1, ROWS):
     if lines[ni][j] == SPLIT_SYMBOL:
-      nodes[(ni, j)] = TNode(coords=(ni, j))
-      seen[(i, j)] = nodes[(ni, j)]
-      return nodes[(ni, j)]
+      
+      if (ni, j) in nodes:
+        new_node = nodes[(ni, j)]
+      
+      else:
+        new_node = TNode(coords=(ni, j))
+        nodes[(ni, j)] = new_node
+        
+      seen[(i, j)] = new_node
+      return new_node
   
+  seen[(i, j)] = None
   return None
 
 
 def check_both_sides(i: int, j: int) -> list[TNode | None, TNode | None]:
+  
   # left side
-  if 0 <= j - 1: 
-    left_node = search_split(i, j-1)
+  left_node = search_split(i, j-1)
   
   # right side
-  if j + 1 < COLS: 
-    right_node = search_split(i, j+1)
+  right_node = search_split(i, j+1)
   
   return [left_node, right_node]
 
@@ -140,8 +147,8 @@ while nodes_to_explore:
       nodes_to_explore.append(right_beam)
       visited.add(right_beam.coords)
 
-seen = set()
-def count_nodes(node: TNode) -> int:
+
+def count_nodes(node: TNode, seen=set()) -> int:
   if node is None:
     return 0
   
@@ -151,23 +158,8 @@ def count_nodes(node: TNode) -> int:
   seen.add(node.coords)
   return 1 + count_nodes(node.left) + count_nodes(node.right)
 
-n_nodes = 0
-visited = set()
-stack = deque([root])
-while stack:
-  curr = stack.popleft()
-  n_nodes += 1
-  
-  if curr.left is not None and curr.left.coords not in visited:
-    stack.append(curr.left)
-    visited.add(curr.left.coords)
-    
-  if curr.right is not None and curr.right.coords not in visited:
-    stack.append(curr.right)
-    visited.add(curr.right.coords)
-
-# the answer is len(nodes)... but a bfs function is cooler
-print(f"Part One [BTree Approach]: {n_nodes}")
+# the answer is len(nodes)... but a recursive function is cooler
+print(f"Part One [BTree Approach]: {count_nodes(root)}")
 
 
 # =========== Part Two =========== #
