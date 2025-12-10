@@ -2,7 +2,7 @@ from collections import defaultdict
 from math import sqrt
 
 
-OPT = 1 # 0 for test, 1 for input
+OPT = 0 # 0 for test, 1 for input
 INPUT_FILE, N_CONN = (("./test.txt", 10), ("./input.txt", 1000))[OPT] 
 
 
@@ -14,6 +14,12 @@ junction_boxes = list(map(lambda x: list(map(int, x.split(","))), junction_boxes
   
 # =========== Part One =========== #
   
+# def distance(box1, box2) -> int:
+#   x1, y1, z1 = box1
+#   x2, y2, z2 = box2
+#   return abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+
+
 def distance(box1, box2) -> int:
   x1, y1, z1 = box1
   x2, y2, z2 = box2
