@@ -7,17 +7,28 @@ red_tiles = list(map(lambda x: list(map(int, x.split(","))), red_tiles))
   
 # =========== Part One =========== #
   
-max_area = 0
-
-for i, (x1, y1) in enumerate(red_tiles):
-  for (x2, y2) in red_tiles[i+1:]:
-    area = (abs(x1 - x2) + 1) * (abs(y1 - y2) + 1)
-    max_area = max(max_area, area)
+def calc_area(x1, y1, x2, y2):
+  return (abs(x1 - x2) + 1) * (abs(y1 - y2) + 1)
     
 
-print(f"Part One: {max_area}")
+print(f"Part One: {
+  max(calc_area(*p1, *p2) 
+    for i, p1 in enumerate(red_tiles) 
+      for p2 in red_tiles[i+1:])}")
 
 
 # =========== Part Two =========== #
 
- 
+def calc_area_points(x1, y1, x2, y2):
+  top = min(y1, y2)
+  left = min(x1, x2)
+  right = max(x1, x2)
+  bottom = max(y1, y2)
+  
+  tl, br = (left, top), (right, bottom)
+  area = (abs(x1 - x2) + 1) * (abs(y1 - y2) + 1)
+  
+  return area, tl, br
+
+
+
