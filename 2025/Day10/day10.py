@@ -60,6 +60,7 @@ machines = list(map(lambda x: (process_first(x[0]), process_second(x[1]), proces
 
 # =========== Part Two =========== #
 
+import os
 from concurrent.futures import ProcessPoolExecutor, Future, as_completed
 
 def num_steps(buttons: list[list[int]], joltages: list[int], i: int) -> int:
@@ -105,8 +106,10 @@ def num_steps(buttons: list[list[int]], joltages: list[int], i: int) -> int:
 
 if __name__ == "__main__":
 
+  total_cpu = os.cpu_count()
+
   ans = [0] * len(machines)
-  with ProcessPoolExecutor() as executor:
+  with ProcessPoolExecutor(max_workers=total_cpu-2) as executor:
     
     future_to_index: dict[Future, int] = {}
 
@@ -114,13 +117,15 @@ if __name__ == "__main__":
       future = executor.submit(num_steps, buttons, joltages, i)
       future_to_index[future] = i
     
+    completed = 1
     for future in as_completed(future_to_index):
       
       try:
         i, steps = future.result()
         ans[i] = steps
       
-        print(f"Finish machine {i}/{len(machines)-1}!!")
+        print(f"Finish machine {i} - Total: {completed}/{len(machines)-1}")
+        completed += 1
       
       except:
         pass
