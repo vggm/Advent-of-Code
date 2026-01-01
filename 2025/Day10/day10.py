@@ -76,10 +76,10 @@ def num_steps(buttons: list[list[int]], joltages: list[int], i: int) -> int:
   def dfs(i: int, steps: int) -> bool:
     nonlocal total_steps, combs
     
-    if tuple(curr_jolts) in states_seen:
-      return False
+    # if tuple(curr_jolts) in states_seen:
+    #   return False
     
-    states_seen.add(tuple(curr_jolts))
+    # states_seen.add(tuple(curr_jolts))
     
     for idx, combination in enumerate(buttons[i:], start=i):
       for press in combination:
