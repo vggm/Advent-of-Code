@@ -1,10 +1,8 @@
 
 from collections import deque
 
-from tqdm import tqdm
 
-
-with open("./test.txt") as fr:
+with open("./input.txt") as fr:
   machines = fr.read().strip().split("\n")
 
 
@@ -62,35 +60,68 @@ print(f"Part One: {ans}")
 
 # =========== Part Two =========== #
 
-ans = 0
-for lights, buttons, joltages in machines:
-  
-  init_jolts = [0] * len(joltages)
-  
-  found = False
-  states = deque([(init_jolts, 1)])
-  states_seen = {tuple(init_jolts)}
-  while states and not found: 
-    curr_state, steps = states.popleft()
-    
-    for combination in buttons:
-      
-      nxt_state = curr_state.copy()
-      for press in combination:
-        nxt_state[press] += 1
-        
-      if tuple(nxt_state) in states_seen:
-        continue
-        
-      states_seen.add(tuple(nxt_state))
-      
-      if all(joltages[i] % jolt == 0 for i, jolt in enumerate(nxt_state)):
-        ans += steps
-        found = True
-        break
-      
-      elif all(jolt <= joltages[i] for i, jolt in enumerate(nxt_state)):
-        states.append((nxt_state, steps + 1))
-        
+from concurrent.futures import ProcessPoolExecutor, Future, as_completed
 
-print(f"Part Two: {ans}")
+def num_steps(buttons: list[list[int]], joltages: list[int], i: int) -> int:
+  buttons.sort(key=len, reverse=True)
+
+  curr_jolts = [0] * len(joltages)
+  
+  states_seen = set()
+  
+  combs = {idx: 0 for idx, _ in enumerate(buttons)}
+  
+  total_steps = 0
+  def dfs(i: int, steps: int) -> bool:
+    nonlocal total_steps, combs
+    
+    if tuple(curr_jolts) in states_seen:
+      return False
+    
+    states_seen.add(tuple(curr_jolts))
+    
+    for idx, combination in enumerate(buttons[i:], start=i):
+      for press in combination:
+        curr_jolts[press] += 1
+      combs[idx] += 1
+      
+      if all(i == j for i, j in zip(curr_jolts, joltages)):
+        total_steps = steps
+        return True
+      
+      if all(i <= j for i, j in zip(curr_jolts, joltages))\
+         and dfs(idx, steps+1):
+        return True
+        
+      for press in combination:
+        curr_jolts[press] -= 1
+      combs[idx] -= 1
+    
+    return False
+
+  dfs(i=0, steps=1)
+  return (i, total_steps)
+
+
+ans = [0] * len(machines)
+with ProcessPoolExecutor() as executor:
+  
+  future_to_index: dict[Future, int] = {}
+
+  for i, (lights, buttons, joltages) in enumerate(machines):
+    future = executor.submit(num_steps, buttons, joltages, i)
+    future_to_index[future] = i
+  
+  for future in as_completed(future_to_index):
+    
+    try:
+      i, steps = future.result()
+      ans[i] = steps
+    
+      print(f"Finish machine {i}/{len(machines)-1}!!")
+    
+    except:
+      pass
+    
+
+print(f"Part Two: {sum(ans)}")
