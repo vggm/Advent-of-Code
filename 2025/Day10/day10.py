@@ -28,34 +28,34 @@ machines = list(map(lambda x: (process_first(x[0]), process_second(x[1]), proces
   
 # =========== Part One =========== # 
   
-ans = 0
-for lights, buttons, joltages in machines:
+# ans = 0
+# for lights, buttons, joltages in machines:
   
-  init_lights = [False] * len(lights)
+#   init_lights = [False] * len(lights)
   
-  found = False
-  states_seen = {tuple(init_lights)}
-  states = deque([(init_lights, 1)])
-  while states and not found: 
-    curr_state, steps = states.popleft()
+#   found = False
+#   states_seen = {tuple(init_lights)}
+#   states = deque([(init_lights, 1)])
+#   while states and not found: 
+#     curr_state, steps = states.popleft()
     
-    for combination in buttons:
+#     for combination in buttons:
       
-      nxt_state = curr_state.copy()
-      for press in combination:
-        nxt_state[press] = not nxt_state[press]
+#       nxt_state = curr_state.copy()
+#       for press in combination:
+#         nxt_state[press] = not nxt_state[press]
       
-      if nxt_state == lights:
-        ans += steps
-        found = True
-        break
+#       if nxt_state == lights:
+#         ans += steps
+#         found = True
+#         break
       
-      if tuple(nxt_state) not in states_seen:
-        states_seen.add(tuple(nxt_state))
-        states.append((nxt_state, steps + 1))
+#       if tuple(nxt_state) not in states_seen:
+#         states_seen.add(tuple(nxt_state))
+#         states.append((nxt_state, steps + 1))
         
 
-print(f"Part One: {ans}")
+# print(f"Part One: {ans}")
 
 
 # =========== Part Two =========== #
@@ -103,25 +103,27 @@ def num_steps(buttons: list[list[int]], joltages: list[int], i: int) -> int:
   return (i, total_steps)
 
 
-ans = [0] * len(machines)
-with ProcessPoolExecutor() as executor:
-  
-  future_to_index: dict[Future, int] = {}
+if __name__ == "__main__":
 
-  for i, (lights, buttons, joltages) in enumerate(machines):
-    future = executor.submit(num_steps, buttons, joltages, i)
-    future_to_index[future] = i
-  
-  for future in as_completed(future_to_index):
+  ans = [0] * len(machines)
+  with ProcessPoolExecutor() as executor:
     
-    try:
-      i, steps = future.result()
-      ans[i] = steps
-    
-      print(f"Finish machine {i}/{len(machines)-1}!!")
-    
-    except:
-      pass
-    
+    future_to_index: dict[Future, int] = {}
 
-print(f"Part Two: {sum(ans)}")
+    for i, (lights, buttons, joltages) in enumerate(machines):
+      future = executor.submit(num_steps, buttons, joltages, i)
+      future_to_index[future] = i
+    
+    for future in as_completed(future_to_index):
+      
+      try:
+        i, steps = future.result()
+        ans[i] = steps
+      
+        print(f"Finish machine {i}/{len(machines)-1}!!")
+      
+      except:
+        pass
+      
+
+  print(f"Part Two: {sum(ans)}")
